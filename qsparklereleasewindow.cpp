@@ -6,6 +6,7 @@ QsparkleReleaseWindow::QsparkleReleaseWindow(QString url, QString newVersion, QW
 	this->_ui->setupUi(this);
 	this->_version = newVersion;
 
+	this->setWindowTitle(tr("A new version of %1 is available!").arg(qApp->applicationName()));
 	this->_ui->titleLabel->setText(tr("A new version of %1 is available!").arg(qApp->applicationName()));
 	this->_ui->descriptionLabel->setText(tr("%1 %2 is now available - you have %3. Would you like to download it now?")
 										 .arg(QCoreApplication::applicationName())

@@ -6,6 +6,8 @@ QsparkleDownloadDialog::QsparkleDownloadDialog(QUrl url, QWidget *parent): QWidg
 	this->_ui->setupUi(this);
 	connect(this->_ui->installButton, SIGNAL(clicked()), this, SLOT(_onInstall()));
 
+	this->setWindowTitle(tr("Downloading %1...").arg(qApp->applicationName()));
+
 	this->_downloadManager = new QNetworkAccessManager(this);
 	connect(this->_downloadManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(_onDownloadFinished(QNetworkReply*)));
 	connect(this->_downloadManager, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), this, SLOT(_onSslErrors(QNetworkReply*,QList<QSslError>)));
