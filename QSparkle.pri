@@ -16,7 +16,6 @@ HEADERS += \
 
 SOURCES += \
 	$$PWD/qsparkle.cpp \
-	$$PWD/main.cpp \
 	$$PWD/qsparkleitem.cpp \
 	$$PWD/qsparkleitemversion.cpp \
 	$$PWD/qsparkledownloaddialog.cpp \
