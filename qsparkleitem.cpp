@@ -8,7 +8,9 @@ QsparkleItem::QsparkleItem(QString title, QString published, QString link, QList
 	this->_published = QDateTime::fromString(published, Qt::RFC2822Date);
 	this->_link = link;
 
-	this->_versions = versions;
+	for (int i = 0; i < versions.count(); i++) {
+		this->_versions.append(versions.at(i));
+	}
 }
 
 QsparkleItemVersion *QsparkleItem::versionForOs()
@@ -37,4 +39,11 @@ QsparkleItemVersion *QsparkleItem::versionForOs()
 QString QsparkleItem::link()
 {
 	return this->_link;
+}
+
+QsparkleItem::~QsparkleItem()
+{
+	for (int i = 0; i < this->_versions.count(); i++) {
+		delete this->_versions.at(i);
+	}
 }

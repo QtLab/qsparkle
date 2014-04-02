@@ -36,3 +36,8 @@ semver::version QsparkleItemVersion::version()
 {
 	return this->_version;
 }
+
+QsparkleItemVersion::~QsparkleItemVersion()
+{
+
+}

@@ -12,6 +12,7 @@ class QsparkleItem : public QObject
 		Q_OBJECT
 	public:
 		QsparkleItem(QString title, QString published, QString link, QList<QsparkleItemVersion*> versions, QObject *parent = 0);
+		~QsparkleItem();
 
 		QsparkleItemVersion *versionForOs();
 		QString link();

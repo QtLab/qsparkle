@@ -12,6 +12,7 @@ class QsparkleItemVersion : public QObject
 		Q_OBJECT
 	public:
 		QsparkleItemVersion(QUrl url, QString version, QString platform, qint64 length, QString type, QObject *parent = 0);
+		~QsparkleItemVersion();
 
 		bool isGreaterThan(semver::version version);
 		QString platform();

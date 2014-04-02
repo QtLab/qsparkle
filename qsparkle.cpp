@@ -1,10 +1,12 @@
 #include "qsparkle.h"
 
-Qsparkle::Qsparkle(QString appcastUrl, QObject *parent): QObject(parent), _currentVersion("")
+Qsparkle::Qsparkle(QString appcastUrl, int remindLaterInterval, QObject *parent): QObject(parent), _currentVersion("")
 {
 	semver::version semver(QCoreApplication::applicationVersion().toStdString());
 
 	this->_url = appcastUrl;
+	this->_remindLaterInterval = remindLaterInterval;
+	this->_isPeriodic = false;
 
 	this->_timer = new QTimer(this);
 	this->_networkManager = new QNetworkAccessManager(this);
@@ -32,12 +34,14 @@ void Qsparkle::check()
 
 void Qsparkle::checkPeriodic(int seconds)
 {
-	this->_timer->start(seconds);
+	this->_isPeriodic = true;
+	this->_timer->start(seconds * 1000);
 }
 
 void Qsparkle::stopPeriodic()
 {
 	this->_timer->stop();
+	this->_isPeriodic = false;
 }
 
 void Qsparkle::_clearItems()
@@ -47,6 +51,7 @@ void Qsparkle::_clearItems()
 	}
 
 	this->_items.clear();
+	this->_largestItem = NULL;
 }
 
 QString Qsparkle::_readXmlElement(QXmlStreamReader *xml)
@@ -64,6 +69,12 @@ QString Qsparkle::_readXmlElement(QXmlStreamReader *xml)
 	}
 
 	return xml->text().toString();
+}
+
+bool Qsparkle::_isSkippedVersion(QString version)
+{
+	QSettings settings;
+	return (settings.value(QString("qsparkle_skip/%1").arg(version), false) != false);
 }
 
 void Qsparkle::_onDownloadComplete(QNetworkReply *reply)
@@ -264,16 +275,21 @@ void Qsparkle::_onDownloadComplete(QNetworkReply *reply)
 
 void Qsparkle::_onTimer()
 {
+	qDebug() << "Checking periodic for updates...";
 	this->check();
 }
 
 void Qsparkle::_onNewVersion(semver::version newVersion)
 {
-	qDebug() << "New version" << newVersion.getVersion().c_str();
+	if (this->_isSkippedVersion(QString(newVersion.getVersion().c_str()))) {
+		qDebug() << "This version should be skipped";
+		return;
+	}
 
 	if (this->_releaseWindow == NULL) {
+		qDebug() << "Display release notes window";
+
 		this->_releaseWindow = new QsparkleReleaseWindow(this->_largestItem->link(), QString(newVersion.getVersion().c_str()));
-		//this->_releaseWindow->setWindowModality(Qt::WindowModal);
 
 		connect(this->_releaseWindow, SIGNAL(install(QString)), this, SLOT(_onInstall(QString)));
 		connect(this->_releaseWindow, SIGNAL(skip(QString)), this, SLOT(_onSkip(QString)));
@@ -281,6 +297,7 @@ void Qsparkle::_onNewVersion(semver::version newVersion)
 
 		this->_releaseWindow->show();
 	} else {
+		qDebug() << this->_releaseWindow;
 		qDebug() << "Release window already open";
 	}
 }
@@ -288,9 +305,6 @@ void Qsparkle::_onNewVersion(semver::version newVersion)
 void Qsparkle::_onNoNewVersion(semver::version latestVersion)
 {
 	qDebug() << "No version" << latestVersion.getVersion().c_str();
-
-	this->_releaseWindow->close();
-	delete this->_releaseWindow;
 }
 
 void Qsparkle::_onInstall(QString version)
@@ -299,9 +313,12 @@ void Qsparkle::_onInstall(QString version)
 
 	this->_releaseWindow->close();
 	delete this->_releaseWindow;
+	this->_releaseWindow = NULL;
 
 	this->_downloadDialog = new QsparkleDownloadDialog(this->_largestItem->versionForOs()->url());
-	//this->_downloadDialog->setWindowModality(Qt::WindowModal);
+
+	connect(this->_downloadDialog, SIGNAL(install(QString)), this, SLOT(_onInstallFile(QString)));
+
 	this->_downloadDialog->show();
 }
 
@@ -309,11 +326,93 @@ void Qsparkle::_onSkip(QString version)
 {
 	qDebug() << "Skip version" << version;
 
+	QSettings settings;
+	qDebug() << settings.fileName();
+	settings.setValue(QString("qsparkle_skip/%1").arg(version), true);
+
 	this->_releaseWindow->close();
 	delete this->_releaseWindow;
+	this->_releaseWindow = NULL;
 }
 
 void Qsparkle::_onRemindLater(QString version)
 {
 	qDebug() << "Remind later for version" << version;
+
+	this->_releaseWindow->close();
+	delete this->_releaseWindow;
+	this->_releaseWindow = NULL;
+
+	this->_timer->setInterval(this->_remindLaterInterval * 1000);
+	if (!this->_isPeriodic)
+		this->_timer->start();
+}
+
+void Qsparkle::_onInstallFile(QString filename)
+{
+	qDebug() << "Extracting archive" << filename;
+
+	QuaZip archiveWrapper(filename);
+
+	if (archiveWrapper.open(QuaZip::mdUnzip)) {
+		QuaZipFile archive(&archiveWrapper);
+
+		qDebug() << "Extracting files" << archiveWrapper.getFileNameList();
+
+		for (bool more = archiveWrapper.goToFirstFile(); more; more = archiveWrapper.goToNextFile()) {
+			QString filePath = archiveWrapper.getCurrentFileName();
+			QString destinationPath = QDir::cleanPath(QDir::currentPath() + QDir::separator() + filePath);
+			QString destinationBackup = destinationPath + "_backup";
+
+			qDebug() << "Extract" << filePath << "to" << destinationPath;
+
+			QuaZipFile zip(archive.getZipName(), filePath);
+			zip.open(QIODevice::ReadOnly);
+			QByteArray data = zip.readAll();
+			zip.close();
+
+			QFile oldFile(destinationPath);
+			if (oldFile.exists()) {
+				qDebug() << "Rename" << destinationPath << "to" << destinationBackup;
+
+				if (!oldFile.rename(destinationBackup)) {
+					qWarning("Could not rename %s to %s!", destinationPath.toUtf8().constData(), destinationBackup.toUtf8().constData());
+				}
+			}
+
+			sleep(10);
+
+			QFile destination(destinationPath);
+			destination.open(QIODevice::WriteOnly);
+			destination.write(data.data());
+			destination.close();
+
+			if (oldFile.exists()) {
+				qDebug() << "Deleting backup of" << destinationPath;
+
+				if (!oldFile.remove()) {
+					qWarning("Could not delete %s!", destinationPath.toUtf8().constData());
+				}
+			}
+		}
+
+		if (archive.getZipError() == UNZ_OK) {
+			qDebug() << "All files extracted successfully";
+			qDebug() << "Restarting application...";
+
+			archiveWrapper.close();
+
+			qApp->quit();
+			QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+		} else {
+			qWarning("Error while extracting files (Error %d)", archive.getZipError());
+			archiveWrapper.close();
+		}
+	} else {
+		qWarning("Could not open archive to extract contents");
+	}
+
+	this->_downloadDialog->close();
+	delete this->_downloadDialog;
+	this->_releaseWindow = NULL;
 }

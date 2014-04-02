@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="descriptionLabel">
      <property name="text">
       <string>Downloading App 1.0...</string>
      </property>
@@ -47,7 +47,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="installButton">
        <property name="enabled">
         <bool>false</bool>
        </property>

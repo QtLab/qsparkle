@@ -6,11 +6,15 @@
 #include "qsparklereleasewindow.h"
 #include "qsparkledownloaddialog.h"
 
+#include "lib/quazip/quazip/quazip.h"
+#include "lib/quazip/quazip/quazipfile.h"
+
 #include <QCoreApplication>
 #include <QObject>
 #include <QDebug>
-
+#include <QProcess>
 #include <QTimer>
+#include <QSettings>
 
 #include <QNetworkAccessManager>
 #include <QUrl>
@@ -23,7 +27,7 @@ class Qsparkle : public QObject
 {
 		Q_OBJECT
 	public:
-		Qsparkle(QString appcastUrl, QObject *parent = 0);
+		Qsparkle(QString appcastUrl, int remindLaterInterval = 3600, QObject *parent = 0);
 
 		void check();
 		void checkPeriodic(int seconds);
@@ -32,6 +36,7 @@ class Qsparkle : public QObject
 	private:
 		QList<QsparkleItem*> _items;
 		QsparkleItem *_largestItem;
+
 		QNetworkAccessManager *_networkManager;
 		QTimer *_timer;
 
@@ -39,9 +44,12 @@ class Qsparkle : public QObject
 		QsparkleDownloadDialog *_downloadDialog;
 
 		QString _url;
+		int _remindLaterInterval;
+		bool _isPeriodic;
 		semver::version _currentVersion;
 
 		void _clearItems();
+		bool _isSkippedVersion(QString version);
 		QString _readXmlElement(QXmlStreamReader *xml);
 
 	private slots:
@@ -53,6 +61,8 @@ class Qsparkle : public QObject
 		void _onInstall(QString version);
 		void _onSkip(QString version);
 		void _onRemindLater(QString version);
+
+		void _onInstallFile(QString filename);
 
 	signals:
 		void newVersion(semver::version newVersion);

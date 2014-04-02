@@ -1,6 +1,6 @@
 TEMPLATE = app
 QT -= gui
-CONFIG += qtestlib
+QT += testlib
 CONFIG += console
 CONFIG -= app_bundle
 DEPENDPATH += .

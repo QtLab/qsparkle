@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
 	app.setQuitOnLastWindowClosed(false);
 
-	Qsparkle *sparkle = new Qsparkle("http://127.0.0.1/appcast.xml");
+	Qsparkle *sparkle = new Qsparkle("http://127.0.0.1/qsparkle/appcast.xml", 10);
 	sparkle->check();
 
 	return app.exec();
