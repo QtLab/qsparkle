@@ -28,18 +28,16 @@ FORMS += \
 	$$PWD/qsparkledownloaddialog.ui
 
 unix {
-	LIBS += -L$$PWD/lib/quazip/quazip/ -lquazip
+	LIBS += -L$$PWD/lib/quazip/quazip/release -lquazip
 }
 
 win32 {
 	LIBS += -L$$PWD/lib/quazip/quazip/release -lquazip
-
-	libquazip.files = $$PWD/lib/quazip/quazip/libquazip.1.dylib
 }
 
 macx {
 	libquazip.path = Contents/Frameworks
 	libquazip.files = $$PWD/lib/quazip/quazip/libquazip.1.dylib
-}
 
-QMAKE_BUNDLE_DATA += libquazip
+	QMAKE_BUNDLE_DATA += libquazip
+}
