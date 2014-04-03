@@ -1,9 +1,11 @@
 #include "qsparklereleasewindow.h"
-#include "ui_qsparkledialog.h"
+#include "ui_qsparklereleasewindow.h"
 
-QsparkleReleaseWindow::QsparkleReleaseWindow(QString url, QString newVersion, QWidget *parent): QWidget(parent), _ui(new Ui::QsparkleDialog)
+QsparkleReleaseWindow::QsparkleReleaseWindow(QString url, QString newVersion, QPixmap icon, QWidget *parent): QWidget(parent), _ui(new Ui::QsparkleReleaseWindow)
 {
 	this->_ui->setupUi(this);
+	this->_ui->iconLabel->setPixmap(icon);
+
 	this->_version = newVersion;
 
 	this->setWindowTitle(tr("A new version of %1 is available!").arg(qApp->applicationName()));

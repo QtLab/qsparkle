@@ -22,7 +22,7 @@ SOURCES += \
 	$$PWD/qsparklereleasewindow.cpp
 
 FORMS += \
-	$$PWD/qsparkledialog.ui \
+	$$PWD/qsparklereleasewindow.ui \
 	$$PWD/qsparkledownloaddialog.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/lib/quazip/quazip/release/ -lquazip

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QsparkleDialog</class>
- <widget class="QWidget" name="QsparkleDialog">
+ <class>QsparkleReleaseWindow</class>
+ <widget class="QWidget" name="QsparkleReleaseWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -20,12 +20,18 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QGraphicsView" name="logo">
+      <widget class="QLabel" name="iconLabel">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>64</width>
+         <height>64</height>
+        </size>
        </property>
        <property name="maximumSize">
         <size>
@@ -33,14 +39,11 @@
          <height>64</height>
         </size>
        </property>
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
+       <property name="text">
+        <string/>
        </property>
-       <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
-       </property>
-       <property name="lineWidth">
-        <number>0</number>
+       <property name="scaledContents">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

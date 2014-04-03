@@ -6,7 +6,7 @@
 #include <QDebug>
 
 namespace Ui {
-	class QsparkleDialog;
+	class QsparkleReleaseWindow;
 }
 
 class QsparkleReleaseWindow : public QWidget
@@ -14,11 +14,11 @@ class QsparkleReleaseWindow : public QWidget
 	Q_OBJECT
 
 	public:
-		explicit QsparkleReleaseWindow(QString url, QString newVersion, QWidget *parent = 0);
+		explicit QsparkleReleaseWindow(QString url, QString newVersion, QPixmap icon, QWidget *parent = 0);
 		~QsparkleReleaseWindow();
 
 	private:
-		Ui::QsparkleDialog *_ui;
+		Ui::QsparkleReleaseWindow *_ui;
 
 		QString _version;
 

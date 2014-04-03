@@ -1,12 +1,13 @@
 #include "qsparkle.h"
 
-Qsparkle::Qsparkle(QString appcastUrl, int remindLaterInterval, QObject *parent): QObject(parent), _currentVersion("")
+Qsparkle::Qsparkle(QString appcastUrl, int remindLaterInterval, QPixmap icon, QObject *parent): QObject(parent), _currentVersion("")
 {
 	semver::version semver(QCoreApplication::applicationVersion().toStdString());
 
 	this->_url = appcastUrl;
 	this->_remindLaterInterval = remindLaterInterval;
 	this->_isPeriodic = false;
+	this->_icon = icon;
 
 	this->_timer = new QTimer(this);
 	this->_networkManager = new QNetworkAccessManager(this);
@@ -289,7 +290,7 @@ void Qsparkle::_onNewVersion(semver::version newVersion)
 	if (this->_releaseWindow == NULL) {
 		qDebug() << "Display release notes window";
 
-		this->_releaseWindow = new QsparkleReleaseWindow(this->_largestItem->link(), QString(newVersion.getVersion().c_str()));
+		this->_releaseWindow = new QsparkleReleaseWindow(this->_largestItem->link(), QString(newVersion.getVersion().c_str()), this->_icon);
 
 		connect(this->_releaseWindow, SIGNAL(install(QString)), this, SLOT(_onInstall(QString)));
 		connect(this->_releaseWindow, SIGNAL(skip(QString)), this, SLOT(_onSkip(QString)));

@@ -27,7 +27,7 @@ class Qsparkle : public QObject
 {
 		Q_OBJECT
 	public:
-		Qsparkle(QString appcastUrl, int remindLaterInterval = 3600, QObject *parent = 0);
+		Qsparkle(QString appcastUrl, int remindLaterInterval = 3600, QPixmap icon = QPixmap(), QObject *parent = 0);
 
 		void check();
 		void checkPeriodic(int seconds);
@@ -45,6 +45,7 @@ class Qsparkle : public QObject
 
 		QString _url;
 		int _remindLaterInterval;
+		QPixmap _icon;
 		bool _isPeriodic;
 		semver::version _currentVersion;
 
