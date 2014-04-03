@@ -6,6 +6,8 @@ DEPENDPATH += $$PWD
 INCLUDEPATH += $$PWD/lib/quazip/quazip
 DEPENDPATH += $$PWD/lib/quazip/quazip
 
+INCLUDEPATH += $$[QT_INSTALL_PREFIX]/src/3rdparty/zlib
+
 HEADERS += \
 	$$PWD/qsparkle.h \
 	$$PWD/qsparkleitem.h \
@@ -25,9 +27,15 @@ FORMS += \
 	$$PWD/qsparklereleasewindow.ui \
 	$$PWD/qsparkledownloaddialog.ui
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/lib/quazip/quazip/release/ -lquazip
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/lib/quazip/quazip/debug/ -lquazip
-else:unix: LIBS += -L$$PWD/lib/quazip/quazip/ -lquazip
+unix {
+	LIBS += -L$$PWD/lib/quazip/quazip/ -lquazip
+}
+
+win32 {
+	LIBS += -L$$PWD/lib/quazip/quazip/release -lquazip
+
+	libquazip.files = $$PWD/lib/quazip/quazip/libquazip.1.dylib
+}
 
 macx {
 	libquazip.path = Contents/Frameworks
