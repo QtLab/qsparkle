@@ -1,7 +1,13 @@
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
-INCLUDEPATH += $$[QT_INSTALL_PREFIX]/Src/qtbase/src/3rdparty/zlib
+macx {
+	LIBS += -lz
+}
+
+win32 {
+	INCLUDEPATH += $$[QT_INSTALL_PREFIX]/Src/qtbase/src/3rdparty/zlib
+}
 
 HEADERS += \
         $$PWD/crypt.h \

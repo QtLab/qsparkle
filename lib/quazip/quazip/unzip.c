@@ -71,7 +71,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <QtZlib/zlib.h>
+#ifdef Q_OS_WIN
+	#include <QtZlib/zlib.h>
+#else
+	#include "zlib.h"
+#endif
 #if (ZLIB_VERNUM < 0x1270)
 typedef uLongf z_crc_t;
 #endif
