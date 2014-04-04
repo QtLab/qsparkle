@@ -15,6 +15,7 @@
 #include <QProcess>
 #include <QTimer>
 #include <QSettings>
+#include <QDataStream>
 
 #include <QNetworkAccessManager>
 #include <QUrl>

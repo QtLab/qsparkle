@@ -351,6 +351,7 @@ void Qsparkle::_onRemindLater(QString version)
 
 void Qsparkle::_onInstallFile(QString filename)
 {
+	qApp->processEvents();
 	qDebug() << "Extracting archive" << filename;
 
 	QuaZip archiveWrapper(filename);
@@ -365,12 +366,12 @@ void Qsparkle::_onInstallFile(QString filename)
 			QString destinationPath = QDir::cleanPath(QDir::currentPath() + QDir::separator() + filePath);
 			QString destinationBackup = destinationPath + "_backup";
 
-			qDebug() << "Extract" << filePath << "to" << destinationPath;
-
 			QuaZipFile zip(archive.getZipName(), filePath);
 			zip.open(QIODevice::ReadOnly);
 			QByteArray data = zip.readAll();
 			zip.close();
+
+			qDebug() << "Extract" << filePath << "to" << destinationPath << "(" << data.size() << " Byte)";
 
 			QFile oldFile(destinationPath);
 			if (oldFile.exists()) {
@@ -381,20 +382,23 @@ void Qsparkle::_onInstallFile(QString filename)
 				}
 			}
 
-			sleep(10);
-
 			QFile destination(destinationPath);
-			destination.open(QIODevice::WriteOnly);
-			destination.write(data.data());
+			if (!destination.open(QIODevice::WriteOnly)) {
+				qWarning("Could not open file %s", destinationPath.toUtf8().constData());
+				continue;
+			}
+
+			int writtenBytes = destination.write(data.data(), data.size());
+			if (writtenBytes > -1) {
+				qDebug() << writtenBytes << "Byte written to file";
+				destination.setPermissions(QFile::ExeOwner);
+			} else {
+				qWarning("Could not write to file!");
+			}
+
 			destination.close();
 
-			if (oldFile.exists()) {
-				qDebug() << "Deleting backup of" << destinationPath;
-
-				if (!oldFile.remove()) {
-					qWarning("Could not delete %s!", destinationPath.toUtf8().constData());
-				}
-			}
+			qApp->processEvents();
 		}
 
 		if (archive.getZipError() == UNZ_OK) {
@@ -404,6 +408,8 @@ void Qsparkle::_onInstallFile(QString filename)
 			archiveWrapper.close();
 
 			qApp->quit();
+
+			qDebug() << "Restarting application" << qApp->arguments()[0] << "with arguments" << qApp->arguments();
 			QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
 		} else {
 			qWarning("Error while extracting files (Error %d)", archive.getZipError());

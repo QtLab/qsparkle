@@ -71,6 +71,7 @@ void QsparkleDownloadDialog::_onInstall()
 {
 	qDebug() << "Installing file" << this->_file->fileName();
 
+	this->_ui->installButton->setEnabled(false);
 	emit install(this->_file->fileName());
 }
 
