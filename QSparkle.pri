@@ -28,7 +28,7 @@ FORMS += \
 	$$PWD/qsparkledownloaddialog.ui
 
 unix {
-	LIBS += -L$$PWD/lib/quazip/quazip/release -lquazip
+	LIBS += -L$$PWD/lib/quazip/quazip -lquazip
 }
 
 win32 {

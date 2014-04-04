@@ -1,5 +1,8 @@
 include(QSparkle.pri)
 
+SOURCES += \
+	$$PWD/main.cpp
+
 OTHER_FILES += \
     .gitignore \
     testfile.txt \
